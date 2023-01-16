@@ -1,0 +1,54 @@
+@startuml
+!pragma teoz true
+
+title Account Activation Sequence Diagram (current sales flow)
+
+actor "Customer" as cx
+participant "DocuSign" as ds
+participant "Salesforce" as sf
+participant "salesforce-sentinel" as sfs
+queue Pulsar as ps
+participant "consumer-user-emails" as cue
+participant "toast-restaurants" as rx
+participant "toast-users" as users
+participant "SendGrid" as sg
+participant "Customer Mailbox" as cxmbox
+participant "ToastWeb" as tw
+
+cx ->> ds: Complete TMA
+
+group Stage automation (details TBD)
+	ds -> sf: Move Opp to Stage 11
+	sf -> sfs: Move Opp to Stage 11
+end group
+
+group Account activation prereqs
+
+	group Restaurant create (details TBD)
+		note right sfs 
+			more details at 
+			system-docs/platform/business-platform/restaurant-create
+		end note
+		sfs -> rx: Create restaurant
+		rx -> tw: Create restaurant
+		tw ->> ps: Emit RestaurantCreate message
+	end group
+
+	group User create (details TBD)
+		sfs -> sfs: TBD
+	end group
+
+end group
+
+group Account activiation initial email
+	sfs ->> ps: Emit InviteEmailEvent message (details TBD)
+	ps ->> cue: Consume InviteEmailEvent message
+	cue -> cue: Generate account activation email
+	cue -> sg: Send account activation email
+	sg -> cxmbox: Send account activation email
+end group
+
+cx -> cxmbox: Read account activation email
+cx -> tw: Activate user account
+
+@enduml
