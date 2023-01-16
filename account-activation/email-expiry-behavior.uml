@@ -1,0 +1,28 @@
+@startuml
+
+title Email Expiry Behavior (current)
+
+actor "Customer" as cx
+participant "Account activation link" as link
+
+group email <  7d old, invite < 60d old
+	cx -> link: Click link
+	link -> cx: Return account creation page
+end group
+
+group email > 7d old, invite < 60d old
+	cx -> link: Click link
+	link -> cx: Email a new link
+end group
+
+group email > 7d old, invite > 60d old
+	cx -> link: Click link
+	link -> cx: Invite expired (exact UX TBD)
+end group
+
+group email < 7d old, invite > 60d old (corner case)
+	cx -> link: Click link
+	link -> cx: TBD
+end group
+
+@enduml
