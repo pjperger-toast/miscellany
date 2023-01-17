@@ -27,7 +27,8 @@ group Account activation prereqs
 	group Restaurant create (details TBD)
 		note right sfs 
 			more details at 
-			system-docs/platform/business-platform/restaurant-create
+			- system-docs/platform/business-platform/restaurant-create
+			- https://toasttab.atlassian.net/wiki/spaces/RES/pages/609780046/Restaurant+Creation+Flow+for+Developers
 		end note
 		sfs -> rx: Create restaurant
 		rx -> tw: Create restaurant
