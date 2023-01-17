@@ -1,10 +1,11 @@
 @startuml
 !pragma teoz true
 
-title Account Activation Sequence Diagram (current sales flow)
+title Account Activation Sequence Diagram (proposed sales flow)
 
 actor "Customer" as cx
 participant "DocuSign" as ds
+participant "oat-spa" as oatspa
 participant "Salesforce" as sf
 participant "salesforce-sentinel" as sfs
 queue Pulsar as ps
@@ -15,20 +16,19 @@ participant "SendGrid" as sg
 participant "Customer Mailbox" as cxmbox
 participant "ToastWeb" as tw
 
-cx ->> ds: Complete TMA
-
-group Stage automation (details TBD)
-	ds -> sf: Move Opp to Stage 11
-	sf -> sfs: Move Opp to Stage 11
-end group
+{start} cx -> ds: Complete TMA
 
 group Account activation prereqs
 
+	group Stage automation (details TBD)
+		ds -> sf: Move Opp to Stage 11
+		sf -> sfs: Move Opp to Stage 11
+	end group
+
 	group Restaurant create (details TBD)
-		note right sfs 
-			more details at 
-			- system-docs/platform/business-platform/restaurant-create
-			- https://toasttab.atlassian.net/wiki/spaces/RES/pages/609780046/Restaurant+Creation+Flow+for+Developers
+		note right sfs
+			more details at
+			system-docs/platform/business-platform/restaurant-create
 		end note
 		sfs -> rx: Create restaurant
 		rx -> tw: Create restaurant
@@ -41,15 +41,30 @@ group Account activation prereqs
 
 end group
 
+par
+
+group Redirect to account activation
+	ds -> cx: Redirect to OAT SPA
+	cx -> oatspa: Intermediate OAT SPA
+	oatspa -> users: GET /api/activation-url
+	users -> oatspa: Return Account Activation URL
+	{end} oatspa -> cx: Redirect to Account Activation
+
+	{start} <-> {end} : SLA TBD but must be good UX
+
+	cx -> tw: Activate user account
+end group
+
 group Account activiation initial email
 	sfs ->> ps: Emit InviteEmailEvent message (details TBD)
 	ps ->> cue: Consume InviteEmailEvent message
 	cue -> cue: Generate account activation email
 	cue -> sg: Send account activation email
 	sg -> cxmbox: Send account activation email
+	cx -> cxmbox: Read account activation email
+	cx -> tw: Activate user account
 end group
 
-cx -> cxmbox: Read account activation email
-cx -> tw: Activate user account
+end par
 
 @enduml
