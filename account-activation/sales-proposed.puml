@@ -1,4 +1,4 @@
-@startuml
+@startuml "sales-proposed"
 !pragma teoz true
 
 title Account Activation Sequence Diagram (proposed sales flow)
