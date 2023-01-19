@@ -1,4 +1,4 @@
-@startuml
+@startuml "email-expiry-behavior"
 
 title Email Expiry Behavior (current)
 
@@ -7,22 +7,17 @@ participant "Account activation link" as link
 
 group email <  7d old, invite < 60d old
 	cx -> link: Click link
-	link -> cx: Return account creation page
+	link -> cx: Open account activation page
 end group
 
 group email > 7d old, invite < 60d old
 	cx -> link: Click link
-	link -> cx: Email a new link
+	link -> cx: Display "New activation email sent" message, and send email
 end group
 
-group email > 7d old, invite > 60d old
+group email any age, invite > 60d old
 	cx -> link: Click link
-	link -> cx: Invite expired (exact UX TBD)
-end group
-
-group email < 7d old, invite > 60d old (corner case)
-	cx -> link: Click link
-	link -> cx: TBD
+	link -> cx: Display "Invite expired" message
 end group
 
 @enduml
