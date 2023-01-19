@@ -44,9 +44,10 @@ end group
 par
 
 group Redirect to account activation
-	ds -> cx: Redirect to OAT SPA
-	cx -> oatspa: Intermediate OAT SPA
-	oatspa -> users: GET /api/activation-url
+	ds -> cx: Redirect to OAT SPA (param: envelope-id)
+	cx -> oatspa: Intermediate OAT SPA (param: envelope-id)
+	oatspa -> oatspa: Fetch Rx ID and User ID (details TBD)
+	oatspa -> users: GET /api/activation-url?rxid=X&userid=Y
 	users -> oatspa: Return Account Activation URL
 	{end} oatspa -> cx: Redirect to Account Activation
 
